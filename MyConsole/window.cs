@@ -22,10 +22,25 @@ namespace MyConsole
         public int cursor { get; set; } = 0;
         public string title { get; set; }
         public ILine[] lines { get; set; }
+        bool withExit = false;
+        public Func<Menu, bool> onExit = (x) => { return true; };
         public Menu(string _title, params ILine[] _lines)
         {
             title = _title;
             lines = _lines.Concat(new ILine[] { new Exit() }).ToArray();
+        }
+        public Menu(string _title, bool withExit, params ILine[] _lines)
+        {
+            title = _title;
+            this.withExit = withExit;
+            if (withExit)
+            {
+                lines = _lines.Concat(new ILine[] { new Exit() }).ToArray();
+            }
+            else
+            {
+                lines = _lines;
+            }
         }
         public void Start()
         {
@@ -67,11 +82,15 @@ namespace MyConsole
             }
             else if (key.Key == ConsoleKey.Escape)
             {
-                App.Back();
+                if (withExit)
+                {
+                    App.Back();
+                }
             }
         }
         public void Exit()
         {
+            onExit(this);
         }
     }
     ////////////Stream//////////////
